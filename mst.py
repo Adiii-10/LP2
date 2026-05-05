@@ -1,10 +1,8 @@
-# Find function (with path compression)
 def find(parent, i):
     if parent[i] != i:
         parent[i] = find(parent, parent[i])
     return parent[i]
 
-# Union function
 def union(parent, rank, x, y):
     root_x = find(parent, x)
     root_y = find(parent, y)
@@ -18,54 +16,48 @@ def union(parent, rank, x, y):
         rank[root_x] += 1
 
 
-def kruskal_mst(vertices, edges):
-    edges.sort(key=lambda x: x[2])  # Greedy step
-
-    parent = list(range(len(vertices)))
-    rank = [0] * len(vertices)
-
+def greedy_mst(vertices, edges):
+    edges.sort(key=lambda x: x[2])
+    parent = list(range(vertices))
+    rank = [0] * vertices
     mst = []
     total_cost = 0
 
-    for u, v, w in edges:
+    for u, v, weight in edges:
         if find(parent, u) != find(parent, v):
-            mst.append((u, v, w))
-            total_cost += w
             union(parent, rank, u, v)
+            mst.append((u, v, weight))
+            total_cost += weight
 
-        if len(mst) == len(vertices) - 1:
-            break
+            if len(mst) == vertices - 1:
+                break
 
-    print("\nEdges in MST:")
-    for u, v, w in mst:
-        print(f"{vertices[u]} - {vertices[v]} : {w}")
-
-    print("Total Cost of MST:", total_cost)
+    return mst, total_cost
 
 
-# 🔹 Step 1: Number of vertices
-v = int(input("Enter number of vertices: "))
+v = int(input("Enter the nodes: "))
+e = int(input("Enter the edges: "))
 
-# 🔹 Step 2: Enter vertex names
-vertices = input("Enter vertex names (e.g., A B C D): ").split()
-
-# Validation (optional but good for viva)
-if len(vertices) != v:
-    print("Error: Number of names must match number of vertices!")
-    exit()
-
-# Mapping (A→0, B→1...)
-vertex_map = {name: i for i, name in enumerate(vertices)}
-
-# 🔹 Step 3: Number of edges
-e = int(input("Enter number of edges: "))
-
-# 🔹 Step 4: Input edges
 edges = []
-print("Enter edges (u v weight):")
+print("Enter each edge (u v weight):")
 for _ in range(e):
-    u, v, w = input().split()
-    edges.append((vertex_map[u], vertex_map[v], int(w)))
+    u, vtx, w = map(int, input().split())
+    edges.append((u, vtx, w))
 
-# 🔹 Run MST
-kruskal_mst(vertices, edges)
+
+mst, cost = greedy_mst(v, edges)
+
+print("\nNodes:")
+for i in range(v):
+    print(i, end=" ")
+print()
+
+print("\nEdges:")
+for u, vtx, w in edges:
+    print(u, "--", vtx, "weight:", w)
+
+print("\nMST:")
+for u, vtx, w in mst:
+    print(u, "--", vtx, "weight:", w)
+
+print("\nTotal Cost:", cost)
